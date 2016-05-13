@@ -1,3 +1,4 @@
+import logging
 import MySQLdb
 
 __author__ = 'Blyde'
@@ -35,3 +36,14 @@ def retry(count):
             raise _e
         return _retry
     return _f
+
+
+def get_logger(log_file, name):
+    file_handler = logging.FileHandler(log_file, mode="a", encoding="UTF-8")
+    fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+    formatter = logging.Formatter(fmt)
+    file_handler.setFormatter(formatter)
+    logger = logging.getLogger(name)
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.DEBUG)
+    return logger

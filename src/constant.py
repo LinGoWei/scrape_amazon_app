@@ -1,6 +1,30 @@
 __author__ = 'Blyde'
 
-user = ['Mozilla/5.0 (s; Intel Mac OS X 10_6_8) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.106 Safari/535.2',
+
+backup_proxy_url_set = {
+    'http://60.212.4.182:8118',
+    'http://27.213.164.190:8888',
+    'http://218.74.25.1:8118',
+    'http://121.31.198.67:8123',
+    'http://182.89.4.19:8123',
+    'http://112.239.212.141:8888',
+    'http://118.194.195.106:8080',
+    'http://112.253.2.61:8080',
+    'http://182.89.6.21:8123',
+    'http://122.157.183.30:80',
+    'http://61.135.217.17:80',
+    'http://182.87.69.72:8080',
+    'http://171.39.137.235:8123',
+    'http://116.226.0.188:8118',
+    'http://175.19.253.182:8888',
+    'http://121.31.101.168:8123',
+    'http://115.46.64.103:8123',
+    'http://58.247.30.222:8080',
+    'http://175.19.248.90:8888'
+}
+
+user_agents = [
+        'Mozilla/5.0 (s; Intel Mac OS X 10_6_8) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.106 Safari/535.2',
         'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.1 Safari/537.36',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36',
