@@ -6,7 +6,8 @@ import random
 import os
 import thread
 import time
-
+import redis
+ 
 from constant import user_agents
 from scrape_proxies import ProxyService
 from utils import get_connection, retry, load_ids_set
@@ -16,30 +17,28 @@ PAGE_PATH = 'res/{date}/{app_id}.txt'
 DIR_PATH = 'res/{date}'
 APP_PAGE_SIZE = 10000
 error_proxies = dict()
+APP_SOURCE_PAGE_KEY = 'amazon-app-detail/{date}/{app_id}'
 
 
 class AmazonAppSpider(object):
     def __init__(self):
         self.proxy_service = ProxyService()
+	self.redis_obj = redis.StrictRedis(host='localhost', port=6379, db=0) 
 
     def scrape(self, date_str, app_ids_list):
         thread.start_new_thread(self._load_proxies, (600, ))
 
-        dir_path = DIR_PATH.format(date=date_str)
-        if not os.path.exists(dir_path):
-            os.mkdir(dir_path)
-
         for app_id in app_ids_list:
-            print 'Started scrape', app_id
-            if os.path.exists(PAGE_PATH.format(date=date_str, app_id=app_id)):
+            app_page_key = APP_SOURCE_PAGE_KEY.format(date=date_str, app_id=app_id)
+	    if self.redis_obj.exists(app_page_key):
                 continue
             try:
-                self._scrape(date_str, app_id)
+                self._scrape(app_id, app_page_key)
             except:
-                print 'Failed scrape', app_id
+                print 'Failed scrape app', app_id
 
-    @retry(3)
-    def _scrape(self, date_str, app_id):
+    @retry(5)
+    def _scrape(self, app_id, app_page_key):
         scrape_url = AMAZON_APP_URL.format(app_id=app_id)
         header = {'content-type': 'text/html',
                   'User-Agent': user_agents[random.randint(0, len(user_agents)-1)]}
@@ -47,20 +46,17 @@ class AmazonAppSpider(object):
         try:
             response = requests.get(scrape_url, timeout=30, headers=header, proxies=proxy)
             if len(response.content) > APP_PAGE_SIZE:
-                print 'Succeed to scrape app page.'
-                self._save_page(date_str, app_id, response.content)
+                self._save_page(app_page_key, response.content)
                 self.proxy_service.manage(proxy, False)
-            else:
+           	print 'Succeed scrape app', app_id
+	    else:
                 raise
         except:
             self.proxy_service.manage(proxy, True)
             raise Exception('Failed scrape app page')
 
-    def _save_page(self, date_str, app_id, content):
-        output = open('res/{date}/{app_id}.txt'.format(date=date_str, app_id=app_id), 'w')
-        output.write(content)
-        output.close()
-        print 'Succeed save app contents'
+    def _save_page(self, app_page_key, content):
+        self.redis_obj.set(app_page_key, content)
 
     def _load_proxies(self, delay):
         while True:
