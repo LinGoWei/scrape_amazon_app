@@ -12,9 +12,9 @@ from scrape_proxies import ProxyService
 from utils import get_connection, retry, load_ids_set
 
 AMAZON_APP_URL = 'http://www.amazon.com/dp/{app_id}'
-DIR_PATH = 'res/0512/{app_id}.txt'
+PAGE_PATH = 'res/{date}/{app_id}.txt'
+DIR_PATH = 'res/{date}'
 APP_PAGE_SIZE = 10000
-proxies = {"http://113.109.19.92:9999"}
 error_proxies = dict()
 
 
@@ -25,9 +25,13 @@ class AmazonAppSpider(object):
     def scrape(self, date_str, app_ids_list):
         thread.start_new_thread(self._load_proxies, (600, ))
 
+        dir_path = DIR_PATH.format(date=date_str)
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
+
         for app_id in app_ids_list:
             print 'Started scrape', app_id
-            if os.path.exists(DIR_PATH.format(app_id=app_id)):
+            if os.path.exists(PAGE_PATH.format(date=date_str, app_id=app_id)):
                 continue
             try:
                 self._scrape(date_str, app_id)

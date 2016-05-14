@@ -1,6 +1,7 @@
 import argparse
 from bs4 import BeautifulSoup
 import datetime
+
 from utils import get_connection, load_ids_set, chunks
 
 __author__ = 'Blyde'
@@ -19,7 +20,6 @@ class AmazonAppImporter(object):
             print 'Started to import batch:', len(batch_app_ids)
             app_detail_dict = amazon_app_parser.parser(args.date, batch_app_ids)
             amazon_app_saver.save(app_detail_dict)
-
             app_detail_dict.clear()
         self.date_base.close()
 
@@ -43,7 +43,7 @@ class AmazonAppParser(object):
         soup = BeautifulSoup(content, 'html.parser')
         try:
             name = soup.find(id='btAsinTitle').string.encode('utf-8')
-            description = soup.find(id='mas-product-description').div.contents[0].encode('utf-8')
+            description = soup.find(id='mas-product-description').div.contents[0].encode('utf-8').replace('\"', '')
             if not name or not description:
                 print 'Failed to parser app name and description'
                 return None
@@ -65,7 +65,7 @@ class AmazonAppSaver(object):
             desc = cursor.description
             last_detail_dict = {}
             for key, value in zip(desc, cursor.fetchone()):
-                last_detail_dict[key[0]] = value if value else 'Null'
+                last_detail_dict[key[0]] = value if value else 'NULL'
 
             if self._need_to_update(last_detail_dict, current_detail_dict):
                 try:
