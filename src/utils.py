@@ -47,3 +47,13 @@ def get_logger(log_file, name):
     logger.addHandler(file_handler)
     logger.setLevel(logging.DEBUG)
     return logger
+
+
+def load_ids_set(date_base):
+    cursor = date_base.cursor()
+    select_sql = "SELECT app_id FROM tb_products"
+    cursor.execute(select_sql)
+    app_ids_set = set()
+    for row in cursor.fetchall():
+        app_ids_set.add(row[0])
+    return app_ids_set
