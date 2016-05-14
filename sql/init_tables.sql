@@ -1,9 +1,12 @@
+use amazon_db;
+
 CREATE TABLE `tb_products` (
   `app_id` varchar(30) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   `description` text,
   PRIMARY KEY (`app_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 CREATE TABLE `tb_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
