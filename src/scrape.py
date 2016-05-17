@@ -7,17 +7,20 @@ import os
 import thread
 import time
 import redis
- 
+from multiprocessing import Process
+from requests.packages.urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
+
 from constant import user_agents
 from scrape_proxies import ProxyService
-from utils import get_connection, retry, load_ids_set
+from utils import get_logger, get_connection, retry, load_ids_set
+from constant import APP_SOURCE_PAGE_KEY 
 
 AMAZON_APP_URL = 'http://www.amazon.com/dp/{app_id}'
-PAGE_PATH = 'res/{date}/{app_id}.txt'
-DIR_PATH = 'res/{date}'
 APP_PAGE_SIZE = 10000
-error_proxies = dict()
-APP_SOURCE_PAGE_KEY = 'amazon-app-detail/{date}/{app_id}'
+
+
+logger = get_logger('scrap.log', __name__)
 
 
 class AmazonAppSpider(object):
@@ -34,24 +37,33 @@ class AmazonAppSpider(object):
                 continue
             try:
                 self._scrape(app_id, app_page_key)
-            except:
-                print 'Failed scrape app', app_id
+            except Exception as ex:
+                print 'Failed scrape and save app', app_id
+		logger.exception(ex)
+		logger.info('Failed scrape and save app {}'.format(app_id))
 
-    @retry(5)
+    @retry(3)
     def _scrape(self, app_id, app_page_key):
         scrape_url = AMAZON_APP_URL.format(app_id=app_id)
         header = {'content-type': 'text/html',
                   'User-Agent': user_agents[random.randint(0, len(user_agents)-1)]}
         proxy = self.proxy_service.get_proxy()
         try:
-            response = requests.get(scrape_url, timeout=30, headers=header, proxies=proxy)
-            if len(response.content) > APP_PAGE_SIZE:
-                self._save_page(app_page_key, response.content)
+	    req = requests.Session()
+	    retries = Retry(total=2, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+	    req.mount('http://', HTTPAdapter(max_retries=retries))
+	    response = req.get(scrape_url, timeout=80, headers=header, proxies=proxy)
+	    if len(response.content) > APP_PAGE_SIZE:
+                print 'Succeed scrape app', app_id
+		self._save_page(app_page_key, response.content)
                 self.proxy_service.manage(proxy, False)
-           	print 'Succeed scrape app', app_id
+           	print 'Succeed save redis app', app_id
+		logger.info('Succeed scrape and save app {}'.format(app_id))
 	    else:
-                raise
-        except:
+                raise Exception('Failed visit app page')
+	
+        except Exception as ex:
+	    logger.exception(ex)
             self.proxy_service.manage(proxy, True)
             raise Exception('Failed scrape app page')
 
@@ -61,8 +73,19 @@ class AmazonAppSpider(object):
     def _load_proxies(self, delay):
         while True:
             self.proxy_service.load_proxies('proxies.csv')
-            print 'Succeed load proxies.'
+	    size = self.proxy_service.get_valid_size()
+            print 'Succeed load proxies. Valid size:', size
+	    logger.info('Succeed load proxies')
             time.sleep(delay)
+
+
+def multi_scrape(i, date, ids):
+    print 'Start process', i
+    logger.info('Start process {}, need to scrape {} apps'.format(i, len(ids)))
+    amazon_app_spider = AmazonAppSpider()
+    amazon_app_spider.scrape(args.date, app_ids_list)
+    print 'Succeed finish process', i
+    logger.info('Succeed finish process {}'.format(i))
 
 
 if __name__ == '__main__':
@@ -75,12 +98,25 @@ if __name__ == '__main__':
         '--date', dest='date', type=str, required=True,
         help='Name of file'
     )
+    par.add_argument(
+        '--batch', dest='batch', type=int, default=1,
+        help='Batch of ids'
+    )
     args = par.parse_args()
 
     db = get_connection()
     app_ids_list = list(load_ids_set(db))[args.after:]
-
-    amazon_app_spider = AmazonAppSpider()
-    amazon_app_spider.scrape(args.date, app_ids_list)
     db.close()
+    batch_size = len(app_ids_list) / args.batch + 1
+
+    process_list = list()
+    for i in range(0, args.batch):
+	ids = app_ids_list[i * batch_size: (i+1) * batch_size]
+	process_list.append(Process(target=multi_scrape, args=(i, args.date, ids)))
+	process_list[-1].start()
+
+    for p in process_list:
+	p.join()
+
     print 'Succeed to finish.'
+    logger.info('Succeed to finish')

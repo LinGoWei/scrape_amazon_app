@@ -12,6 +12,7 @@ File Encoding         : 65001
 
 Date: 2016-05-15 11:43:55
 */
+use amazon_db;
 
 SET FOREIGN_KEY_CHECKS=0;
 

@@ -25,6 +25,9 @@ class ProxyService(object):
             return None
         return {'http': proxy}
 
+    def get_valid_size(self):
+	return len(self.proxy_url_set)
+
     def load_proxies(self, file_name):
         with file(file_name, 'r') as csv_file:
             reader = csv.reader(csv_file)
@@ -47,7 +50,7 @@ class ProxyService(object):
             if proxy_url in self.error_proxy_dict:
                 self.error_proxy_dict[proxy_url] += 1
                 if self.error_proxy_dict[proxy_url] > DEFAULT_ERROR_TIMES:
-                    self.proxy_url_set.pop(proxy_url)
+                    self.proxy_url_set.remove(proxy_url)
                     self.error_proxy_dict.pop(proxy_url)
             else:
                 self.error_proxy_dict[proxy_url] = 1
