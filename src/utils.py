@@ -1,5 +1,5 @@
 import logging
-import MySQLdb
+import datetime
 
 __author__ = 'Blyde'
 
@@ -13,11 +13,7 @@ def chunks(l, size):
     :rtype: list
     """
     for i in xrange(0, len(l), size):
-        yield l[i:i+size]
-
-
-def get_connection():
-    return MySQLdb.connect(host="localhost", user="lgw", passwd="", db="app_db")
+        yield l[i: i+size]
 
 
 def retry(count):
@@ -38,22 +34,14 @@ def retry(count):
     return _f
 
 
-def get_logger(log_file, name):
-    file_handler = logging.FileHandler(log_file, mode="a", encoding="UTF-8")
-    fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+def get_logger(name):
+    """Get a handler of logger"""
+    log_file_name = 'app_scrape_{date}.log'.format(date=datetime.datetime.now().strftime('%Y-%m-%d'))
+    file_handler = logging.FileHandler(log_file_name, mode="a", encoding="UTF-8")
+    fmt = '%(asctime)s - %(process)d - %(thread)d - %(filename)s:%(lineno)s - %(name)s - %(message)s'
     formatter = logging.Formatter(fmt)
     file_handler.setFormatter(formatter)
     logger = logging.getLogger(name)
     logger.addHandler(file_handler)
     logger.setLevel(logging.DEBUG)
     return logger
-
-
-def load_ids_set(date_base):
-    cursor = date_base.cursor()
-    select_sql = "SELECT app_id FROM tb_products"
-    cursor.execute(select_sql)
-    app_ids_set = set()
-    for row in cursor.fetchall():
-        app_ids_set.add(row[0])
-    return app_ids_set

@@ -4,7 +4,7 @@ import requests
 import random
 import zlib
 
-from constant import user_agents, TOP_CHART_PAGE_KEY, CATEGORY_ID
+from src.constant import user_agents, TOP_CHART_PAGE_KEY, CATEGORY_ID
 
 FREE_APPS_URL = 'http://www.apple.com/itunes/charts/free-apps/' 
 PAID_APPS_URL = 'http://www.apple.com/itunes/charts/paid-apps/' 

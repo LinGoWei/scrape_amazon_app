@@ -1,0 +1,75 @@
+import time
+import argparse
+from multiprocessing import Process
+
+
+from src.constant import market
+from src.services.database_service import DatabaseService
+from src.utils import get_logger
+
+__author__ = 'Blyde'
+
+logger = get_logger(__name__)
+
+
+class ScrapeProcess(object):
+    def __init__(self, args):
+        self.market = args.market
+        self.after = args.after
+        self.date = args.date
+        self.batch = args.batch
+        self.process_pool = []
+
+    def process(self):
+        ids = self._load_ids()[self.after:]
+        self._create_process(ids)
+        self._start_process()
+        time.sleep(5)
+        self._join_process()
+
+    def _load_ids(self):
+        data_service = DatabaseService()
+        ids = data_service.load_ids_set(self.market)
+        data_service.close()
+        del data_service
+        return ids
+
+    def _create_process(self, ids):
+        target = 'multi_process_scrape_{market}'.format(market=self.market)
+        batch_size = len(ids) / self.batch + 1
+        for process_id in range(0, self.batch):
+            app_ids = ids[process_id * batch_size: (process_id+1) * batch_size]
+            self.process_pool.append(Process(target=target, args=(process_id, self.date, app_ids)))
+
+    def _start_process(self):
+        for process in self.process_pool:
+            process.start()
+
+    def _join_process(self):
+        for process in self.process_pool:
+            process.join()
+
+
+if __name__ == '__main__':
+    parse = argparse.ArgumentParser()
+    parse.add_argument(
+        '--market', dest='market', choices=market, required=True,
+        help='Name of market'
+    )
+    parse.add_argument(
+        '--after', dest='after', type=int, required=True,
+        help='Id of after'
+    )
+    parse.add_argument(
+        '--date', dest='date', type=str, required=True,
+        help='Name of file'
+    )
+    parse.add_argument(
+        '--batch', dest='batch', type=int, default=1,
+        help='Batch of ids'
+    )
+    args = parse.parse_args()
+    scrape_process = ScrapeProcess(args)
+    scrape_process.process()
+    print 'Succeed to finish.'
+    logger.info('Succeed to finish')

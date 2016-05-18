@@ -1,32 +1,39 @@
 import csv
 import random
-from bs4 import BeautifulSoup
 import requests
 import time
 
-from constant import backup_proxy_url_set, user_agents
-from utils import retry
+from bs4 import BeautifulSoup
+
+from src.constant import user_agents
+from src.utils import retry
 
 __author__ = 'Blyde'
 
-PROXY_URL = 'http://{ip}:{port}'
+PROXY_URL = '{protocol}://{ip}:{port}'
+BACKUP_PROXY_URL_SET = {
+    'http://182.120.31.119:9999',
+    'http://183.62.206.210:3128',
+    'http://60.191.165.100:3128',
+    'http://106.7.154.67:9000',
+}
 DEFAULT_ERROR_TIMES = 1
 
 
 class ProxyService(object):
     def __init__(self):
-        self.proxy_url_set = backup_proxy_url_set
+        self.proxy_url_set = BACKUP_PROXY_URL_SET
         self.error_proxy_dict = dict()
         self.invalid_proxy_url_set = set()
 
     def get_proxy(self):
-        proxy = list(self.proxy_url_set)[random.randint(0, len(self.proxy_url_set)-1)]
+        proxy = list(self.proxy_url_set)[random.randint(0, len(self.proxy_url_set) - 1)]
         if not proxy:
             return None
         return {'http': proxy}
 
     def get_valid_size(self):
-	return len(self.proxy_url_set)
+        return len(self.proxy_url_set)
 
     def load_proxies(self, file_name):
         with file(file_name, 'r') as csv_file:
@@ -34,7 +41,7 @@ class ProxyService(object):
             for p in reader:
                 if p[0] not in self.invalid_proxy_url_set:
                     self.proxy_url_set.add(p[0])
-            # logger.info('Succeed load proxies.')
+                    # logger.info('Succeed load proxies.')
 
     def scrape_proxies(self, file_name):
         # logger.info('Started to scrape proxies.')
@@ -62,7 +69,7 @@ class ProxyService(object):
     def _scrape(self):
         scrape_url = 'http://www.xicidaili.com/nn'
         header = {'content-type': 'text/html',
-                  'User-Agent': user_agents[random.randint(0, len(user_agents)-1)]}
+                  'User-Agent': user_agents[random.randint(0, len(user_agents) - 1)]}
         try:
             response = requests.get(scrape_url, headers=header, proxies=None)
             # logger.info('Succeed get proxies.')
@@ -76,7 +83,8 @@ class ProxyService(object):
         proxy_tag = soup.find(id='ip_list').select('tr')
         parser_proxy_url_set = set()
         for i in range(1, 21):
-            proxy_url = PROXY_URL.format(ip=proxy_tag[i].find_all('td')[1].string,
+            proxy_url = PROXY_URL.format(protocol='http',
+                                         ip=proxy_tag[i].find_all('td')[1].string,
                                          port=proxy_tag[i].find_all('td')[2].string)
             parser_proxy_url_set.add(proxy_url)
         # logger.info('Succeed parser proxies')
@@ -87,7 +95,7 @@ class ProxyService(object):
             writer = csv.writer(report_file, delimiter=',', quotechar='"')
             for p in parser_proxy_url_set:
                 writer.writerow([p])
-            # logger.info('Succeed save proxies')
+                # logger.info('Succeed save proxies')
 
 
 if __name__ == '__main__':
@@ -96,4 +104,3 @@ if __name__ == '__main__':
         proxy_service.scrape_proxies('proxies.csv')
         print 'Succeed scrape proxies.'
         time.sleep(60 * 10)
-
