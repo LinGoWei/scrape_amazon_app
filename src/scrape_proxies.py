@@ -10,7 +10,7 @@ from utils import retry
 __author__ = 'Blyde'
 
 PROXY_URL = 'http://{ip}:{port}'
-DEFAULT_ERROR_TIMES = 2
+DEFAULT_ERROR_TIMES = 1
 
 
 class ProxyService(object):

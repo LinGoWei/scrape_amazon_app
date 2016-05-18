@@ -1,6 +1,9 @@
 __author__ = 'Blyde'
 
 APP_SOURCE_PAGE_KEY = 'amazon-app-detail/{date}/{app_id}'
+TOP_CHART_PAGE_KEY = 'apple-category-popular/{date}/{category_id}'
+
+CATEGORY_ID = [6000, 6001, 6002, 6003, 6004, 6005, 6006, 6007, 6008, 6009, 6010, 6011, 6012, 6013, 6014, 6015, 6016, 6017, 6018, 6020, 6021, 6022, 6023, 6024]
 
 backup_proxy_url_set = {
     'http://182.120.31.119:9999',

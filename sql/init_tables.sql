@@ -1,10 +1,12 @@
-use amazon_db;
+use app_db;
 
 CREATE TABLE `tb_products` (
   `app_id` varchar(30) NOT NULL,
+  `platform` varchar(50) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `description` text,
-  PRIMARY KEY (`app_id`)
+  `description` text DEFAULT NULL,
+  `icon_url` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`app_id`, `platform`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 

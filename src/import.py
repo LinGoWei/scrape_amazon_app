@@ -1,8 +1,10 @@
 import argparse
 from bs4 import BeautifulSoup
 import datetime
+import redis
 
 from utils import get_connection, load_ids_set, chunks
+from constant import APP_SOURCE_PAGE_KEY
 
 __author__ = 'Blyde'
 
@@ -13,49 +15,62 @@ class AmazonAppImporter(object):
 
     def importer(self, args):
         app_ids_list = list(load_ids_set(self.date_base))[args.after:]
-        amazon_app_parser = AmazonAppParser()
+	amazon_app_parser = AmazonAppParser()
         amazon_app_saver = AmazonAppSaver(self.date_base)
 
         for batch_app_ids in chunks(app_ids_list, 100):
             print 'Started to import batch:', len(batch_app_ids)
             app_detail_dict = amazon_app_parser.parser(args.date, batch_app_ids)
-            amazon_app_saver.save(app_detail_dict)
+	    amazon_app_saver.save(app_detail_dict)
             app_detail_dict.clear()
+	print 'Failed number:', amazon_app_parser.get_failed_number()
         self.date_base.close()
 
 
 class AmazonAppParser(object):
+    def __init__(self):
+	self.redis_obj = redis.StrictRedis(host='localhost', port=6379, db=0)
+	self.failed_number = 0
+
     def parser(self, date_str, app_ids_list):
         app_detail_dict = dict()
         for app_id in app_ids_list:
-            content = self._load_page(date_str, app_id)
-            detail = self._parser(content)
-            if detail:
-                app_detail_dict[app_id] = detail
-        return app_detail_dict
+	    content = self._load_page(date_str, app_id)
+            try:
+		detail = self._parser(content)
+	    	if detail:
+                    app_detail_dict[app_id] = detail
+            	else:
+		    self.failed_number += 1
+		    raise
+	    except:
+		self.failed_number += 1
+		print 'Failed parser app', app_id 
+	return app_detail_dict
+
+    def get_failed_number(self):
+	return failed_number
 
     def _load_page(self, date_str, app_id):
-        read_file = open('res/{date}/{app_id}.txt'.format(date=date_str, app_id=app_id), 'r')
-        content = read_file.read()
-        return content
+        app_page_key = APP_SOURCE_PAGE_KEY.format(date=date_str, app_id=app_id)
+        if self.redis_obj.exists(app_page_key):
+	    content = self.redis_obj.get(app_page_key)
+	    return content
 
     def _parser(self, content):
         soup = BeautifulSoup(content, 'html.parser')
-        try:
-            name = soup.find(id='btAsinTitle').string.encode('utf-8')
-            description = soup.find(id='mas-product-description').div.contents[0].encode('utf-8').replace('\"', '')
-            if not name or not description:
-                print 'Failed to parser app name and description'
-                return None
-            return {'name': name, 'description': description}
-        except:
-            print 'Failed find tags.'
+        name = soup.find(id='btAsinTitle').string.encode('utf-8')
+        description = soup.find(id='mas-product-description').div.contents[0].encode('utf-8').replace('\"', '')
+        if not name or not description:
+            print 'Failed to parser app name and description'
             return None
+        return {'name': name, 'description': description}
 
 
 class AmazonAppSaver(object):
     def __init__(self, date_base):
         self.date_base = date_base
+	self.update_number = 0
 
     def save(self, app_detail_dict):
         cursor = self.date_base.cursor()
@@ -70,17 +85,22 @@ class AmazonAppSaver(object):
             if self._need_to_update(last_detail_dict, current_detail_dict):
                 try:
                     self._update_app(app_id, current_detail_dict)
-                    print 'Succeed update app'
                     self._save_event(app_id, last_detail_dict, current_detail_dict)
                     self.date_base.commit()
-                    print 'Succeed save event'
-                except:
+		    self.update_number += 1
+		except:
                     self.date_base.rollback()
+		    print 'Failed save app', app_id
+	    else:
+		print 'Not change app', app_id
 
     @staticmethod
     def _need_to_update(last_detail_dict, current_detail_dict):
         if last_detail_dict['name'] != current_detail_dict['name']:
             return True
+
+    def get_update_number(self):
+	return self.update_number
 
     def _save_event(self, app_id, last_detail_dict, current_detail_dict):
         """Save event if found detail has been changed"""

@@ -17,7 +17,7 @@ def chunks(l, size):
 
 
 def get_connection():
-    return MySQLdb.connect(host="localhost", user="test", passwd="", db="test")
+    return MySQLdb.connect(host="localhost", user="lgw", passwd="", db="app_db")
 
 
 def retry(count):
