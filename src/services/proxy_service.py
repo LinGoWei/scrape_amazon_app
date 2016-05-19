@@ -38,7 +38,8 @@ class ProxyService(object):
         return len(self.proxy_url_set)
 
     def load_proxies(self):
-        return self.redis_service.get(PROXY_URL_KEY)
+        proxy_urls = self.redis_service.get(PROXY_URL_KEY)
+        self.proxy_url_set.update(proxy_urls - self.invalid_proxy_url_set)
 
     def process(self):
         content = self._scrape()

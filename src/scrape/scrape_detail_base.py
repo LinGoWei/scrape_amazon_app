@@ -34,7 +34,8 @@ class AppDetailSpider(object):
         """
         thread.start_new_thread(self._load_proxies_thread, (600, ))
         for app_detail_key, content in self._scrape(date_str, app_ids):
-            self._save(app_detail_key, content)
+            if content:
+                self._save(app_detail_key, content)
 
     def _scrape(self, date_str, app_ids):
         for app_id in app_ids:
@@ -61,14 +62,14 @@ class AppDetailSpider(object):
             logger.info('Succeed set key: {}'.format(app_detail_key))
             print 'Succeed set key: {}'.format(app_detail_key)
         except Exception as ex:
-            logger.error(ex)
+            logger.exception(ex)
             logger.error('Failed set {}'.format(app_detail_key))
             print 'Failed set key', app_detail_key
 
     def _load_proxies_thread(self, delay):
         logger.info('Start thread to load proxy.')
         while True:
-            self.proxy_service.load_proxies('proxies.csv')
+            self.proxy_service.load_proxies()
             size = self.proxy_service.get_valid_size()
             print 'Succeed load proxies. Valid size:', size
             logger.info('Succeed load proxies. Valid size {}'.format(size))

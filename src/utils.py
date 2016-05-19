@@ -38,7 +38,7 @@ def get_logger(name):
     """Get a handler of logger"""
     log_file_name = 'app_scrape_{date}.log'.format(date=datetime.datetime.now().strftime('%Y-%m-%d'))
     file_handler = logging.FileHandler(log_file_name, mode="a", encoding="UTF-8")
-    fmt = '%(asctime)s - %(process)d - %(thread)d - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+    fmt = '%(asctime)s - %(process)d - %(filename)s:%(lineno)s - %(name)s - %(message)s'
     formatter = logging.Formatter(fmt)
     file_handler.setFormatter(formatter)
     logger = logging.getLogger(name)
