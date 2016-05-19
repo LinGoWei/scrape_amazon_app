@@ -17,10 +17,18 @@ class RedisService(object):
                                            db=redis_info['db'])
 
     def exists(self, key):
-        return True if self.redis_obj.exists(key) else False
+        return self.redis_obj.exists(key)
 
     def set(self, key, value):
         self.redis_obj.set(key, value)
 
     def get(self, key):
-        return self.redis_obj.get(key) if self.exists(key) else None
+        return self.redis_obj.get(key)
+
+    def push_list(self, key, values):
+        self.redis_obj.delete(key)
+        for val in values:
+            self.redis_obj.lpush(key, val)
+
+    def pull_list(self, key):
+        return self.redis_obj.lrange(key, 0, -1)
