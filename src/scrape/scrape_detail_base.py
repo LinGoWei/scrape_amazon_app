@@ -49,8 +49,8 @@ class AppDetailSpider(object):
     def _save(self, app_detail_key, content):
         try:
             self.redis_service.set(app_detail_key, zlib.compress(content))
- #           logger.info('Succeed set key: {}'.format(app_datail_key)
- #           print 'Succeed set key'
+            logger.info('Succeed set key: {}'.format(app_detail_key))
+            print 'Succeed set key: {}'.format(app_detail_key)
         except Exception as ex:
             logger.exception(ex)
             logger.error('Failed set {}'.format(app_detail_key))
