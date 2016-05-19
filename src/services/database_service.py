@@ -45,7 +45,7 @@ class DatabaseService(object):
         cursor.execute(update_sql)
         self.database_connect.commit()
 
-    def get_app_detail(self, app_id, market):
+    def get_app_detail(self, market, app_id):
         """Get app detail from db"""
         cursor = self.database_connect.cursor()
         last_detail_sql = "SELECT name, description" \
@@ -59,11 +59,11 @@ class DatabaseService(object):
             last_detail_dict[key[0]] = value if value else 'NULL'
         return last_detail_dict
 
-    def load_ids_set(self, market):
+    def load_ids(self, market):
         cursor = self.database_connect.cursor()
         select_sql = "SELECT app_id FROM tb_products WHERE market='{}'".format(market)
         cursor.execute(select_sql)
         app_ids_set = set()
         for row in cursor.fetchall():
             app_ids_set.add(row[0])
-        return app_ids_set
+        return list(app_ids_set)

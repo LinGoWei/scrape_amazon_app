@@ -3,7 +3,7 @@ import argparse
 from multiprocessing import Process
 
 
-from constant import market
+from constant import MARKET
 from services.database_service import DatabaseService
 from utils import get_logger
 from scrape.scrape_detail_amazon import multi_process_scrape_amazon
@@ -31,12 +31,13 @@ class ScrapeProcess(object):
 
     def _load_ids(self):
         data_service = DatabaseService()
-        ids = data_service.load_ids_set(self.market)
+        ids = data_service.load_ids(self.market)
         data_service.close()
         del data_service
-        return list(ids)
+        return ids
 
     def _create_process(self, ids):
+        target = None
         if self.market == 'amazon':
             target = multi_process_scrape_amazon
         elif self.market == 'apple':
@@ -59,7 +60,7 @@ class ScrapeProcess(object):
 if __name__ == '__main__':
     parse = argparse.ArgumentParser()
     parse.add_argument(
-        '--market', dest='market', choices=market, required=True,
+        '--market', dest='market', choices=MARKET, required=True,
         help='Name of market'
     )
     parse.add_argument(
