@@ -40,7 +40,7 @@ class DatabaseService(object):
         values = list()
         for key, value in current_detail_dict.iteritems():
             values.append("{}=\"{}\"".format(key, value))
-        update_sql = """UPDATE tb_products SET {} WHERE app_id='{}' AND platform='{}' """.format(
+        update_sql = """UPDATE tb_products SET {} WHERE app_id='{}' AND market='{}' """.format(
             ','.join(values), app_id, market)
         cursor.execute(update_sql)
         self.database_connect.commit()
@@ -51,7 +51,7 @@ class DatabaseService(object):
         last_detail_sql = "SELECT name, description" \
                           " FROM tb_products" \
                           " WHERE app_id='{}'" \
-                          "   AND platform='{}'".format(app_id, market)
+                          "   AND market='{}'".format(app_id, market)
         cursor.execute(last_detail_sql)
         desc = cursor.description
         last_detail_dict = {}
@@ -61,7 +61,7 @@ class DatabaseService(object):
 
     def load_ids_set(self, market):
         cursor = self.database_connect.cursor()
-        select_sql = "SELECT app_id FROM tb_products WHERE platform='{}'".format(market)
+        select_sql = "SELECT app_id FROM tb_products WHERE market='{}'".format(market)
         cursor.execute(select_sql)
         app_ids_set = set()
         for row in cursor.fetchall():

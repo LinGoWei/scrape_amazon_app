@@ -3,9 +3,11 @@ import argparse
 from multiprocessing import Process
 
 
-from src.constant import market
-from src.services.database_service import DatabaseService
-from src.utils import get_logger
+from constant import market
+from services.database_service import DatabaseService
+from utils import get_logger
+from scrape.scrape_detail_amazon import multi_process_scrape_amazon
+
 
 __author__ = 'Blyde'
 
@@ -32,10 +34,14 @@ class ScrapeProcess(object):
         ids = data_service.load_ids_set(self.market)
         data_service.close()
         del data_service
-        return ids
+        return list(ids)
 
     def _create_process(self, ids):
-        target = 'multi_process_scrape_{market}'.format(market=self.market)
+        if self.market == 'amazon':
+            target = multi_process_scrape_amazon
+        elif self.market == 'apple':
+            pass
+
         batch_size = len(ids) / self.batch + 1
         for process_id in range(0, self.batch):
             app_ids = ids[process_id * batch_size: (process_id+1) * batch_size]
@@ -57,7 +63,7 @@ if __name__ == '__main__':
         help='Name of market'
     )
     parse.add_argument(
-        '--after', dest='after', type=int, required=True,
+        '--after', dest='after', type=int, default=0,
         help='Id of after'
     )
     parse.add_argument(

@@ -6,10 +6,10 @@ import zlib
 import time
 import thread
 
-from src.services.proxy_service import ProxyService
-from src.services.redis_service import RedisService
-from src.constant import DETAIL_SOURCE_KEY
-from src.utils import get_logger
+from services.proxy_service import ProxyService
+from services.redis_service import RedisService
+from constant import DETAIL_SOURCE_KEY
+from utils import get_logger
 
 __author__ = 'Blyde'
 
@@ -49,9 +49,12 @@ class AppDetailSpider(object):
     def _save(self, app_detail_key, content):
         try:
             self.redis_service.set(app_detail_key, zlib.compress(content))
+ #           logger.info('Succeed set key: {}'.format(app_datail_key)
+ #           print 'Succeed set key'
         except Exception as ex:
             logger.exception(ex)
             logger.error('Failed set {}'.format(app_detail_key))
+            print 'Failed set key', app_detail_key 
 
     @abstractmethod
     def _scrape_market(self, app_id):

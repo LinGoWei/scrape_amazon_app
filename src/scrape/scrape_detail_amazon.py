@@ -1,8 +1,8 @@
 import random
 
-from src.constant import user_agents
-from src.scrape.scrape_detail_base import AppDetailSpider
-from src.utils import get_logger, retry
+from constant import user_agents
+from scrape.scrape_detail_base import AppDetailSpider
+from utils import get_logger, retry
 
 AMAZON_APP_URL = 'http://www.amazon.com/dp/{app_id}'
 REJECT_PAGE_SIZE = 10000    # 10K
@@ -35,15 +35,16 @@ class AmazonAppSpider(AppDetailSpider):
 
         except Exception as ex:
             self.proxy_service.manage(proxy, True)
-            raise ex
+            logger.excption(ex)
+            print ex
 
 
-def multi_process_scrape_amazon(process_id, date, platform, ids):
+def multi_process_scrape_amazon(process_id, date, ids):
     """" Multi process scrape amazon app"""
 
-    print 'Start process {}, need to scrape {} apps in {}'.format(process_id, len(ids), platform)
-    logger.info('Start process {}, need to scrape {} apps in {}'.format(process_id, len(ids)), platform)
+    print 'Start process {}, need to scrape {} apps in amazon'.format(process_id, len(ids))
+    logger.info('Start process {}, need to scrape {} apps in amazon'.format(process_id, len(ids)))
     amazon_app_spider = AmazonAppSpider()
-    amazon_app_spider.process(date, platform, ids)
+    amazon_app_spider.process(date, 'amazon', ids)
     print 'Succeed finish process', process_id
     logger.info('Succeed finish process {}'.format(process_id))

@@ -5,8 +5,8 @@ import time
 
 from bs4 import BeautifulSoup
 
-from src.constant import user_agents
-from src.utils import retry
+from constant import user_agents
+from utils import retry
 
 __author__ = 'Blyde'
 
