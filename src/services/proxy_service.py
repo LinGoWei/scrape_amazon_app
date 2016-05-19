@@ -11,7 +11,7 @@ from services.redis_service import RedisService
 __author__ = 'Blyde'
 
 PROXY_URL = '{protocol}://{ip}:{port}'
-PROXY_URL_LIST_KEY = 'proxy-url-list'
+PROXY_URL_KEY = 'proxy-urls'
 
 BACKUP_PROXY_URL_SET = {
     'http://182.120.31.119:9999',
@@ -39,9 +39,9 @@ class ProxyService(object):
         return len(self.proxy_url_set)
 
     def load_proxies(self):
-        self.redis_service.get(PROXY_URL_LIST_KEY)
+        return self.redis_service.get(PROXY_URL_KEY)
 
-    def process_proxies(self):
+    def process(self):
         content = self._scrape()
         parser_proxy_url_set = self._parser(content)
         self._save(parser_proxy_url_set)
@@ -86,12 +86,4 @@ class ProxyService(object):
         return parser_proxy_url_set
 
     def _save(self, parser_proxy_url_set):
-        self.redis_service.set(PROXY_URL_LIST_KEY, parser_proxy_url_set)
-
-
-if __name__ == '__main__':
-    proxy_service = ProxyService()
-    while True:
-        proxy_service.process_proxies()
-        print 'Succeed scrape proxies.'
-        time.sleep(60 * 10)
+        self.redis_service.set(PROXY_URL_KEY, parser_proxy_url_set)

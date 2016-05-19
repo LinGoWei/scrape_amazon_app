@@ -41,10 +41,9 @@ class AmazonAppSpider(AppDetailSpider):
 
 def multi_process_scrape_amazon(process_id, date, ids):
     """" Multi process scrape amazon app"""
-
     print 'Start process {}, need to scrape {} apps in amazon'.format(process_id, len(ids))
     logger.info('Start process {}, need to scrape {} apps in amazon'.format(process_id, len(ids)))
     amazon_app_spider = AmazonAppSpider()
-    amazon_app_spider.process(date, 'amazon', ids)
+    #amazon_app_spider.process(date, 'amazon', ids)
     print 'Succeed finish process', process_id
     logger.info('Succeed finish process {}'.format(process_id))
