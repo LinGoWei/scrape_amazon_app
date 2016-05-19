@@ -30,12 +30,12 @@ class DatabaseService(object):
                last_detail_dict['description'],
                current_detail_dict['name'],
                current_detail_dict['description'],
-               datetime.datetime.now().strftime('%Y-%m-%d %h: %m :%s')]
+               datetime.datetime.now().strftime('%Y-%m-%d %H:%M')]
         insert_sql = """INSERT INTO tb_event ({}) VALUES (\"{}\")""".format(','.join(keys), "\",\"".join(val))
         cursor.execute(insert_sql)
         self.database_connect.commit()
 
-    def update_app_detail(self, app_id, market, current_detail_dict):
+    def update_app_detail(self, market, app_id, current_detail_dict):
         cursor = self.database_connect.cursor()
         values = list()
         for key, value in current_detail_dict.iteritems():

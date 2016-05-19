@@ -45,7 +45,8 @@ class AppDetailSpider(object):
             try:
                 yield app_detail_key, self._scrape_market(app_id)
             except Exception as ex:
-                logger.error(ex)
+                logger.exception(ex)
+                print 'Failed scrape', app_id
 
     @abstractmethod
     def _scrape_market(self, app_id):

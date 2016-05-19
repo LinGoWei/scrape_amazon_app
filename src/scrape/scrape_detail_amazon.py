@@ -35,11 +35,11 @@ class AmazonAppSpider(AppDetailSpider):
                     logger.info('Invalid app {}'.format(app_id))
             else:
                 logger.info('Reject visit app {}'.format(app_id))
+                raise Exception('Reject visit app {}'.format(app_id))
 
         except Exception as ex:
             self.proxy_service.manage(proxy, True)
-            logger.error(ex)
-            print ex
+            logger.exception(ex)
 
 
 def multi_process_scrape_amazon(process_id, date, ids):
