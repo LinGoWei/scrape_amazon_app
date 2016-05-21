@@ -68,10 +68,10 @@ class AppDetailImporter(object):
 
     def _load(self, date_str, app_id):
         app_detail_key = DETAIL_SOURCE_KEY.format(date=date_str, market=self.market, app_id=app_id)
-        # content = zlib.decompress(self.redis_service.get(app_detail_key))
-        print app_detail_key
-        content = self.redis_service.get(app_detail_key)
-        return content
+        detail = self.redis_service.get(app_detail_key)
+        if detail:
+            content = zlib.decompress(detail)
+            return content
 
     @staticmethod
     def _need_to_update(last_detail_dict, current_detail_dict):
