@@ -15,10 +15,12 @@ class AmazonDetailImporter(AppDetailImporter):
         self.market = 'amazon'
 
     def _parser(self, content):
+        if not content:
+            return None
         try:
             soup = BeautifulSoup(content, 'html.parser')
-            name = soup.find(id='btAsinTitle').string.encode('utf-8').replace('\"', '\'')
-            description = soup.find(id='mas-product-description').div.contents[0].encode('utf-8').replace('\"', '\'')
+            name = soup.find(id='btAsinTitle').string.encode('utf-8')
+            description = soup.find(id='mas-product-description').div.contents[0].encode('utf-8').replace('\"', '')
             icon_url = soup.find(id='js-masrw-main-image')['src']
             if not name or not description or not icon_url:
                 print 'Failed to parser app name, description and icon url.'

@@ -59,6 +59,20 @@ class DatabaseService(object):
             last_detail_dict[key[0]] = value if value else 'NULL'
         return last_detail_dict
 
+    def import_ids(self, market, app_ids):
+        cursor = self.database_connect.cursor()
+        keys = ['market', 'app_id']
+        exist_sql_template = """SELECT EXISTS(SELECT 1 FROM tb_products WHERE market={} AND app_id={} limit 1)"""
+        insert_sql_template = """INSERT INTO tb_products ({}) VALUES (\"{}\")"""
+        for app_id in app_ids:
+            exists_sql = exist_sql_template.format(market, app_id)
+            cursor.execute(exists_sql)
+            is_exist = cursor.fetchone()
+            if is_exist == 1:
+                insert_sql = insert_sql_template.format(market, app_id)
+                cursor.execute(insert_sql)
+        self.database_connect.commit()
+
     def load_ids(self, market):
         cursor = self.database_connect.cursor()
         select_sql = "SELECT app_id FROM tb_products WHERE market='{}'".format(market)

@@ -28,17 +28,19 @@ class AppDetailImporter(object):
             logger.info('Started to import batch: {}'.format(len(batch_app_ids)))
             for app_id in batch_app_ids:
                 content = self._load(date_str, app_id)
-                if not content:
-                    continue
                 detail_dict = self._parser(content)
-                if not detail_dict:
-                    continue
                 self._save(app_id, detail_dict)
 
             garbage_number = gc.collect()
             print 'Garbage number:', garbage_number
 
         self.database_service.close()
+
+    def _load(self, date_str, app_id):
+        app_detail_key = DETAIL_SOURCE_KEY.format(date=date_str, market=self.market, app_id=app_id)
+        detail = self.redis_service.get(app_detail_key)
+        if detail:
+            return zlib.decompress(detail)
 
     @abstractmethod
     def _parser(self, content):
@@ -50,6 +52,8 @@ class AppDetailImporter(object):
         raise NotImplementedError()
 
     def _save(self, app_id, current_detail):
+        if not current_detail:
+            return
         try:
             last_detail = self.database_service.get_app_detail(self.market, app_id)
             if self._need_to_update(last_detail, current_detail):
@@ -65,13 +69,6 @@ class AppDetailImporter(object):
             logger.exception(ex)
             logger.info('Failed update detail and event for {} in {}'.format(app_id, self.market))
             print 'Failed save detail and event for {} in {}'.format(app_id, self.market)
-
-    def _load(self, date_str, app_id):
-        app_detail_key = DETAIL_SOURCE_KEY.format(date=date_str, market=self.market, app_id=app_id)
-        detail = self.redis_service.get(app_detail_key)
-        if detail:
-            content = zlib.decompress(detail)
-            return content
 
     @staticmethod
     def _need_to_update(last_detail_dict, current_detail_dict):
