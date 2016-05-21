@@ -1,7 +1,6 @@
 __author__ = 'Blyde'
 
-#DETAIL_SOURCE_KEY = 'app-detail/{date}/{market}/{app_id}'
-DETAIL_SOURCE_KEY = 'amazon-app-detail/{date}/{app_id}'
+DETAIL_SOURCE_KEY = 'app-detail/{date}/{market}/{app_id}'
 CATEGORY_PAGE_KEY = 'category-popular/{date}/{market}/{category_id}'
 
 APPLE_CATEGORY_ID = [6000, 6001, 6002, 6003, 6004, 6005,

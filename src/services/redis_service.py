@@ -25,10 +25,14 @@ class RedisService(object):
     def get(self, key):
         return self.redis_obj.get(key)
 
-    def push_list(self, key, values):
-        self.redis_obj.delete(key)
-        for val in values:
-            self.redis_obj.lpush(key, val)
+    def add_set(self, key, value):
+        self.redis_obj.sadd(key, value)
 
-    def pull_list(self, key):
-        return self.redis_obj.lrange(key, 0, -1)
+    def read_set(self, key):
+        return self.redis_obj.srandmember(key)
+
+    def pop_set(self, key, value):
+        self.redis_obj.srem(key, value)
+        
+    def get_set_size(self, key):
+        return self.redis_obj.scard(key)

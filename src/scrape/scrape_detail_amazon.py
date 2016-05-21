@@ -16,7 +16,7 @@ class AmazonAppSpider(AppDetailSpider):
         super(AmazonAppSpider, self).__init__()
         self.market = 'amazon'
 
-    @retry(2)
+    @retry(3)
     def _scrape_market(self, app_id):
         scrape_url = AMAZON_APP_URL.format(app_id=app_id)
         header = {'content-type': 'text/html',
@@ -34,12 +34,12 @@ class AmazonAppSpider(AppDetailSpider):
                     print 'Invalid app', app_id
                     logger.info('Invalid app {}'.format(app_id))
             else:
-                logger.info('Reject visit app {}'.format(app_id))
+                logger.info('Reject visit app {}, use proxy {}'.format(app_id, proxy))
                 raise Exception('Reject visit app {}'.format(app_id))
 
         except Exception as ex:
             self.proxy_service.manage(proxy, True)
-            logger.exception(ex)
+            raise ex
 
 
 def multi_process_scrape_amazon(process_id, date, ids):
