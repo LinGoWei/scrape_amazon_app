@@ -1,7 +1,14 @@
+import zlib
+import gc
+
 from constant import CATEGORY_PAGE_KEY
+from utils import get_logger
+from abc import abstractmethod
+from utils import get_logger
+from services.database_service import DatabaseService
+from services.redis_service import RedisService
 
 __author__ = 'Blyde'
-
 logger = get_logger(__name__)
 
 class AppIdsImporter(object):
@@ -29,7 +36,7 @@ class AppIdsImporter(object):
         print category_page_key
         category_page = self.redis_service.get(category_page_key)
         if category_page:
-            return zlib.decompress(content)
+            return zlib.decompress(category_page)
 
     @abstractmethod
     def _parser(self, content):
@@ -44,7 +51,8 @@ class AppIdsImporter(object):
         if not ids_set:
             return
         try:
-            self.database_service.import_ids(ids_set)
+            print 11
+            self.database_service.import_ids(self.market, ids_set)
             print 'Succeed import ids: {}'.len(ids_set)
             logger.info('Succeed import ids: {}'.len(ids_set))
 
