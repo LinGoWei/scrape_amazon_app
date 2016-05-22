@@ -104,4 +104,4 @@ class ProxyService(object):
 
     def _save(self, protocol, parser_proxy_url_set):
         for url in parser_proxy_url_set:
-            self.redis_service.add_set(PROXY_URL_KEY.format(protocol), url)
+            self.redis_service.add_set(PROXY_URL_KEY.format(protocol=protocol), url)
