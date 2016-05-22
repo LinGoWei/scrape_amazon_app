@@ -19,7 +19,7 @@ class AmazonDetailImporter(AppDetailImporter):
             return None
         try:
             soup = BeautifulSoup(content, 'html.parser')
-            name = soup.find(id='btAsinTitle').string.encode('utf-8')
+            name = soup.find(id='btAsinTitle').string.encode('utf-8').replace('\"', '\'')
             description = soup.find(id='mas-product-description').div.contents[0].encode('utf-8').replace('\"', '')
             icon_url = soup.find(id='js-masrw-main-image')['src']
             if not name or not description or not icon_url:
