@@ -44,12 +44,12 @@ class ProxyService(object):
     def manage(self, proxy, error):
         if not proxy:
             return
-        proxy_url = proxy['http']
+        protocol, proxy_url = proxy.items()[0]
         if error:
             if proxy_url in self.error_proxy_dict:
                 self.error_proxy_dict[proxy_url] += 1
                 if self.error_proxy_dict[proxy_url] > DEFAULT_ERROR_TIMES:
-                    self.redis_service.pop_set(PROXY_URL_KEY, proxy_url)
+                    self.redis_service.pop_set(PROXY_URL_KEY.format(protocol), proxy_url)
                     self.error_proxy_dict.pop(proxy_url)
                     logger.info('Invalid proxy: {}'.format(proxy_url))
             else:

@@ -5,6 +5,7 @@ from multiprocessing import Process
 
 from constant import MARKET
 from services.database_service import DatabaseService
+from scrape.scrape_detail_apple import multi_process_scrape_apple
 from utils import get_logger
 from scrape.scrape_detail_amazon import multi_process_scrape_amazon
 
@@ -41,7 +42,7 @@ class ScrapeProcess(object):
         if self.market == 'amazon':
             target = multi_process_scrape_amazon
         elif self.market == 'apple':
-            pass
+            target = multi_process_scrape_apple
 
         batch_size = len(ids) / self.batch + 1
         for process_id in range(0, self.batch):

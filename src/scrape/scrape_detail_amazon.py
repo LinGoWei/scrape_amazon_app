@@ -21,7 +21,7 @@ class AmazonAppSpider(AppDetailSpider):
         scrape_url = AMAZON_APP_URL.format(app_id=app_id)
         header = {'content-type': 'text/html',
                   'User-Agent': user_agents[random.randint(0, len(user_agents)-1)]}
-        proxy = self.proxy_service.get_proxy()
+        proxy = self.proxy_service.get_proxy('http')
         try:
             response = self.request.get(scrape_url, timeout=80, headers=header, proxies=proxy)
             if len(response.content) > REJECT_PAGE_SIZE:
