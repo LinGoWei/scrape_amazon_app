@@ -20,3 +20,14 @@ CREATE TABLE `tb_event` (
   `date_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `tb_icon_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_id` varchar(30) DEFAULT NULL,
+  `market` varchar(30) DEFAULT NULL,
+  `old_value` varchar(255) DEFAULT NULL,
+  `new_value` varchar(255) DEFAULT NULL,
+  `date_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
