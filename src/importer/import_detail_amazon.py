@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 
 from utils import get_logger
-from import_base import AppDetailImporter
+from import_detail_base import AppDetailImporter
 
 __author__ = 'Blyde'
 

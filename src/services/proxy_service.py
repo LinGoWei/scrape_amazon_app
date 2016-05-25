@@ -22,13 +22,13 @@ class ProxyService(object):
         self.error_proxy_dict = dict()
 
     def get_proxy(self, protocol):
-        proxy = self.redis_service.read_set(PROXY_URL_KEY.format(protocol))
+        proxy = self.redis_service.read_set(PROXY_URL_KEY.format(protocol=protocol))
         if not proxy:
             return None
         return {protocol: proxy}
 
     def get_valid_size(self, protocol):
-        return self.redis_service.get_set_size(PROXY_URL_KEY.format(protocol))
+        return self.redis_service.get_set_size(PROXY_URL_KEY.format(protocol=protocol))
 
     def process(self):
         logger.info('Start load proxy.')
@@ -38,7 +38,6 @@ class ProxyService(object):
 
         content = self._scrape_https_proxy()
         parser_proxy_url_set = self._parser_https_proxy(content)
-        print parser_proxy_url_set
         self._save('https', parser_proxy_url_set)
 
     def manage(self, proxy, error):
@@ -49,7 +48,7 @@ class ProxyService(object):
             if proxy_url in self.error_proxy_dict:
                 self.error_proxy_dict[proxy_url] += 1
                 if self.error_proxy_dict[proxy_url] > DEFAULT_ERROR_TIMES:
-                    self.redis_service.pop_set(PROXY_URL_KEY.format(protocol), proxy_url)
+                    self.redis_service.pop_set(PROXY_URL_KEY.format(protocol=protocol), proxy_url)
                     self.error_proxy_dict.pop(proxy_url)
                     logger.info('Invalid proxy: {}'.format(proxy_url))
             else:

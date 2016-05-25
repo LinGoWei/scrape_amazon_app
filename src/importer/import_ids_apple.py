@@ -4,7 +4,7 @@ import re
 
 from bs4 import BeautifulSoup
 from importer.import_ids_base import AppIdsImporter
-from constant import APPLE_CATEGORY_ID
+from constant import APPLE_CATEGORY_IDS
 from utils import get_logger
 
 PATTERN = "id[0-9]\d*"

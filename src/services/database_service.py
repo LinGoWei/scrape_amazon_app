@@ -40,6 +40,7 @@ class DatabaseService(object):
         values = list()
         for key, value in current_detail_dict.iteritems():
             values.append("{}=\"{}\"".format(key, value))
+
         update_sql = """UPDATE tb_products SET {} WHERE app_id='{}' AND market='{}' """.format(
             ','.join(values), app_id, market)
         cursor.execute(update_sql)

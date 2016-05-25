@@ -24,7 +24,6 @@ class AppleAppSpider(AppDetailSpider):
         proxy = self.proxy_service.get_proxy('https')
         try:
             response = self.request.get(scrape_url, timeout=80, headers=header, proxies=proxy)
-            print len(response.content)
             if len(response.content) > REJECT_PAGE_SIZE:
                 if len(response.content) > NORMAL_APP_PAGE_SIZE:
                     self.proxy_service.manage(proxy, False)

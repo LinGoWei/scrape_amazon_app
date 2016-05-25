@@ -32,20 +32,20 @@ class AppDetailSpider(object):
         :param app_ids:
         :return:
         """
-        for app_detail_key, content in self._scrape(date_str, app_ids):
-            if content:
-                self._save(app_detail_key, content)
-
-    def _scrape(self, date_str, app_ids):
         for app_id in app_ids:
             app_detail_key = DETAIL_SOURCE_KEY.format(date=date_str, market=self.market, app_id=app_id)
             if self.redis_service.exists(app_detail_key):
                 continue
-            try:
-                yield app_detail_key, self._scrape_market(app_id)
-            except Exception as ex:
-                logger.exception(ex)
-                print 'Failed scrape', app_id
+            content = self._scrape(app_id)
+            if content:
+                self._save(app_detail_key, content)
+
+    def _scrape(self, app_id):
+        try:
+           return self._scrape_market(app_id)
+        except Exception as ex:
+            logger.exception(ex)
+            print 'Failed scrape', app_id
 
     @abstractmethod
     def _scrape_market(self, app_id):

@@ -6,6 +6,7 @@ from importer.import_detail_base import AppDetailImporter
 from utils import get_logger
 from importer.import_ids_base import AppIdsImporter
 from importer.import_ids_apple import AppleIdsImporter
+from importer.import_detail_apple import AppleDetailImporter
 
 __author__ = 'Blyde'
 
@@ -18,7 +19,7 @@ MARKET_TO_IMPORTER = {
         'top_chart': AppIdsImporter,
     },
     'apple': {
-        'detail': AppDetailImporter,
+        'detail': AppleDetailImporter,
         'top_chart': AppleIdsImporter,
     }
 }
