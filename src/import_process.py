@@ -36,12 +36,20 @@ if __name__ == '__main__':
         help='Date of detail need to import'
     )
     parse.add_argument(
+        '--start', dest='start', type=int, required=True,
+        help='Start id'
+    )
+    parse.add_argument(
+        '--end', dest='end', type=int, required=True,
+        help='End id'
+    )
+    parse.add_argument(
         '--action', dest='action', choices=ACTION, required=True,
         help='Name of action'
     )
     args = parse.parse_args()
 
     importer = MARKET_TO_IMPORTER[args.market][args.action] 
-    importer().imported(args.date)
+    importer().imported(args.date, start=args.start, end=args.end)
     print 'Succeed to finish.'
     logger.info('Succeed to finish.')

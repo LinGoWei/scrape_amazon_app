@@ -19,7 +19,7 @@ class AppIdsImporter(object):
         self.database_service = DatabaseService()
         self.redis_service = RedisService()
 
-    def imported(self, date_str):
+    def imported(self, date_str, **kargs):
         print 'Started to import ids'
         logger.info('Started to import ids')
         for category_id in self.category_ids:
