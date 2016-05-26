@@ -11,9 +11,9 @@ NORMAL_APP_PAGE_SIZE = 50000   # 50K
 logger = get_logger(__name__)
 
 
-class AppleAppSpider(AppDetailSpider):
+class AppleDetailSpider(AppDetailSpider):
     def __init__(self):
-        super(AppleAppSpider, self).__init__()
+        super(AppleDetailSpider, self).__init__()
         self.market = 'apple'
 
     @retry(3)
@@ -46,7 +46,7 @@ def multi_process_scrape_apple(process_id, date, ids):
     """" Multi process scrape amazon app"""
     print 'Start process {}, need to scrape {} apps in apple'.format(process_id, len(ids))
     logger.info('Start process {}, need to scrape {} apps in apple'.format(process_id, len(ids)))
-    apple_app_spider = AppleAppSpider()
+    apple_app_spider = AppleDetailSpider()
     apple_app_spider.process(date, ids)
     print 'Succeed finish process', process_id
     logger.info('Succeed finish process {}'.format(process_id))

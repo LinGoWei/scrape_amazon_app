@@ -11,9 +11,9 @@ NORMAL_APP_PAGE_SIZE = 100000   # 100K
 logger = get_logger(__name__)
 
 
-class AmazonAppSpider(AppDetailSpider):
+class AmazonDetailSpider(AppDetailSpider):
     def __init__(self):
-        super(AmazonAppSpider, self).__init__()
+        super(AmazonDetailSpider, self).__init__()
         self.market = 'amazon'
 
     @retry(3)
@@ -46,7 +46,7 @@ def multi_process_scrape_amazon(process_id, date, ids):
     """" Multi process scrape amazon app"""
     print 'Start process {}, need to scrape {} apps in amazon'.format(process_id, len(ids))
     logger.info('Start process {}, need to scrape {} apps in amazon'.format(process_id, len(ids)))
-    amazon_app_spider = AmazonAppSpider()
+    amazon_app_spider = AmazonDetailSpider()
     amazon_app_spider.process(date, ids)
     print 'Succeed finish process', process_id
     logger.info('Succeed finish process {}'.format(process_id))

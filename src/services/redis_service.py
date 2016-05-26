@@ -42,3 +42,7 @@ class RedisService(object):
 
     def get_set_size(self, key):
         return self.redis_obj.scard(key)
+    
+    def keys(self, key_pattern):
+        return self.redis_obj.keys(key_pattern)
+
