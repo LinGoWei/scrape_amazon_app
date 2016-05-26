@@ -31,8 +31,14 @@ class RedisService(object):
     def read_set(self, key):
         return self.redis_obj.srandmember(key)
 
-    def pop_set(self, key, value):
+    def pop_set(self, key):
+        return self.redis_obj.spop(key)
+
+    def remove_set(self, key, value):
         self.redis_obj.srem(key, value)
-        
+    
+    def members_set(self, key):
+        return self.redis_obj.smembers(key)
+
     def get_set_size(self, key):
         return self.redis_obj.scard(key)

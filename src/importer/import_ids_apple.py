@@ -16,7 +16,7 @@ class AppleIdsImporter(AppIdsImporter):
     def __init__(self):
         super(AppleIdsImporter, self).__init__()
         self.market = 'apple'
-        self.category_ids = APPLE_CATEGORY_ID
+        self.category_ids = APPLE_CATEGORY_IDS
         self.reg = re.compile(PATTERN)
 
     def _parser(self, content):

@@ -8,4 +8,4 @@ if __name__ == '__main__':
     while True:
         proxy_service.process()
         print 'Succeed scrape proxy.'
-        time.sleep(20*60)
+        time.sleep(5*60)
