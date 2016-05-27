@@ -1,10 +1,6 @@
 from abc import abstractmethod
 import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3 import Retry
 import zlib
-import time
-import thread
 import gc
 
 from services.proxy_service import ProxyService
@@ -23,8 +19,6 @@ class AppDetailSpider(object):
         self.proxy_service = ProxyService()
         self.redis_service = RedisService()
         self.request = requests.Session()
-        retries = Retry(total=2, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
-        self.request.mount('http://', HTTPAdapter(max_retries=retries))
 
     def process(self, date_str, app_ids):
         """
@@ -35,7 +29,6 @@ class AppDetailSpider(object):
         """
         print 'Started process, need to scrape {}'.format(len(app_ids))
         logger.info('Started process, need to scrape {}'.format(len(app_ids)))
-        number = 0
         for batch_app_ids in chunks(app_ids, DEFAULT_BATCH_SIZE):
             for app_id in batch_app_ids:
                 app_detail_key = DETAIL_SOURCE_KEY.format(date=date_str, market=self.market, app_id=app_id)
@@ -43,13 +36,13 @@ class AppDetailSpider(object):
                     continue
                 content = self._scrape(app_id)
                 if content:
-                    number += 1
                     self._save(app_detail_key, content)
+
             garbage_number = gc.collect()
             print 'Garbage number:', garbage_number
 
-        print 'Succeed process, scrape {}'.format(number)
-        logger.info('Succeed process, scrape {}'.format(number))
+        print 'Succeed process'
+        logger.info('Succeed process')
 
     def _scrape(self, app_id):
         try:

@@ -13,7 +13,7 @@ PROXY_URL = '{protocol}://{ip}:{port}'
 PROXY_URL_KEY = '{protocol}-proxy-urls'
 
 CHECK_URL = {'http': 'http://www.amazon.com',
-             'https': 'http://www.apple.com/itunes'}
+             'https': 'https://itunes.apple.com/app/id1046846443'}
 
 
 DEFAULT_ERROR_TIMES = 2
@@ -78,11 +78,8 @@ class ProxyService(object):
         scrape_url = 'http://www.nianshao.me/?stype=2'
         header = {'content-type': 'text/html',
                   'User-Agent': user_agents[random.randint(0, len(user_agents)-1)]}
-        try:
-            response = requests.get(scrape_url, headers=header, proxies=None)
-            return response.content
-        except:
-            raise Exception('Failed scrape proxies.')
+        response = requests.get(scrape_url, timeout=60, headers=header, proxies=None)
+        return response.content
 
     def _parser_http_proxy(self, content):
         soup = BeautifulSoup(content, 'html.parser')
@@ -113,7 +110,7 @@ class ProxyService(object):
                       'User-Agent': user_agents[random.randint(0, len(user_agents)-1)]}
             proxy = {protocol: url}
             try:
-                response = self.request.get(CHECK_URL[protocol], headers=header, proxies=proxy)
+                response = self.request.get(CHECK_URL[protocol], timeout=60, headers=header, proxies=proxy)
                 print response.status_code
                 if response.status_code == 200:
                     valid_proxy_url_set.add(url)

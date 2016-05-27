@@ -60,9 +60,13 @@ class AppDetailImporter(object):
             last_detail = self.database_service.get_app_detail(self.market, app_id)
             if self._need_to_update(last_detail, current_detail):
                 self.database_service.update_app_detail(self.market, app_id, current_detail)
-                self.database_service.save_event(app_id, last_detail, current_detail)
-                logger.info('Succeed save detail and event for {} in {}'.format(app_id, self.market))
-                print 'Succeed save detail and event for {} in {}'.format(app_id, self.market)
+                logger.info('Succeed save detail for {} in {}'.format(app_id, self.market))
+                print 'Succeed save detail for {} in {}'.format(app_id, self.market)
+                
+                if last_detail['name'] != 'NULL':
+                    self.database_service.save_event(app_id, last_detail, current_detail)
+                    logger.info('Succeed save event for {} in {}'.format(app_id, self.market))
+                    print 'Succeed save event for {} in {}'.format(app_id, self.market)
 
            # elif self._need_to_update_icon(last_detail, current_detail):
            #     self.database_service.save_icon_event(app_id, last_detail, current_detail)
