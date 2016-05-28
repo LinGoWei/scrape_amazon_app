@@ -12,8 +12,8 @@ logger = get_logger(__name__)
 
 
 class AmazonDetailSpider(AppDetailSpider):
-    def __init__(self):
-        super(AmazonDetailSpider, self).__init__()
+    def __init__(self, error_dict):
+        super(AmazonDetailSpider, self).__init__(error_dict)
         self.market = 'amazon'
 
     @retry(3)

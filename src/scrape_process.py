@@ -1,6 +1,6 @@
 import time
 import argparse
-from multiprocessing import Process
+from multiprocessing import Process, Manager
 
 from constant import MARKET
 from services.database_service import DatabaseService
@@ -26,6 +26,7 @@ class ScrapeProcess(object):
     def process(self):
         ids = self._load_ids()
         self._create_process(ids)
+        del ids
         self._start_process()
         time.sleep(3)
         self._join_process()
@@ -38,16 +39,15 @@ class ScrapeProcess(object):
 
     def _create_process(self, ids):
         if self.market == 'amazon':
-            app_detail_spider = AmazonDetailSpider()
+            app_detail_spider = AmazonDetailSpider(Manager().dict())
         elif self.market == 'apple':
-            app_detail_spider = AppleDetailSpider()
+            app_detail_spider = AppleDetailSpider(Manager().dict())
 
         target = app_detail_spider.process
         batch_size = len(ids) / self.batch + 1
         for process_id in range(0, self.batch):
             app_ids = ids[process_id * batch_size: (process_id+1) * batch_size]
-            self.process_pool.append(Process(target=target, args=(self.date, app_ids)))
-        del ids[:]
+            self.process_pool.append(Process(target=target, args=(process_id, self.date, app_ids)))
 
     def _start_process(self):
         for process in self.process_pool:

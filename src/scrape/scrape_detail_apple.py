@@ -12,11 +12,11 @@ logger = get_logger(__name__)
 
 
 class AppleDetailSpider(AppDetailSpider):
-    def __init__(self):
-        super(AppleDetailSpider, self).__init__()
+    def __init__(self, error_dict):
+        super(AppleDetailSpider, self).__init__(error_dict)
         self.market = 'apple'
 
-    @retry(3)
+    @retry(2)
     def _scrape_market(self, app_id):
         scrape_url = APPLE_APP_URL.format(app_id=app_id)
         header = {'content-type': 'text/html',

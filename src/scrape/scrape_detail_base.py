@@ -11,16 +11,17 @@ from utils import get_logger, chunks
 __author__ = 'Blyde'
 
 logger = get_logger(__name__)
-DEFAULT_BATCH_SIZE = 50
+DEFAULT_BATCH_SIZE = 30
+
 
 class AppDetailSpider(object):
-    def __init__(self):
+    def __init__(self, error_dict):
         self.market = None
-        self.proxy_service = ProxyService()
+        self.proxy_service = ProxyService(error_dict)
         self.redis_service = RedisService()
         self.request = requests.Session()
 
-    def process(self, date_str, app_ids):
+    def process(self, process_id, date_str, app_ids):
         """
 
         :param date_str:
@@ -41,8 +42,8 @@ class AppDetailSpider(object):
             garbage_number = gc.collect()
             print 'Garbage number:', garbage_number
 
-        print 'Succeed process'
-        logger.info('Succeed process')
+        print 'Succeed process {}'.format(process_id)
+        logger.info('Succeed process {}'.format(process_id))
 
     def _scrape(self, app_id):
         try:
