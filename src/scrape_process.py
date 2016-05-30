@@ -1,5 +1,6 @@
 import time
 import argparse
+import gc
 from multiprocessing import Process, Manager
 
 from constant import MARKET
@@ -27,6 +28,7 @@ class ScrapeProcess(object):
         ids = self._load_ids()
         self._create_process(ids)
         del ids
+        gc.collect()
         self._start_process()
         time.sleep(3)
         self._join_process()

@@ -4,6 +4,7 @@ import re
 import urllib
 
 from bs4 import BeautifulSoup
+from urllib3 import PoolManager, ProxyManager
 
 from constant import user_agents
 from utils import retry, get_logger
@@ -18,7 +19,7 @@ CHECK_URL = {'http': 'http://www.amazon.com',
              'https': 'https://itunes.apple.com/app/id1046846443'}
 
 
-DEFAULT_ERROR_TIMES = 3
+DEFAULT_ERROR_TIMES = 2
 logger = get_logger(__name__)
 
 
@@ -26,7 +27,7 @@ class ProxyService(object):
     def __init__(self, error_dict):
         self.redis_service = RedisService()
         self.error_proxy_dict = error_dict
-        self.request = requests.Session()
+        self.connection_pool = PoolManager()
 
     def get_proxy(self, protocol):
         proxy = self.redis_service.read_set(PROXY_URL_KEY.format(protocol=protocol))
@@ -86,8 +87,8 @@ class ProxyService(object):
         header = {'content-type': 'text/html',
                   'Accept-Language': 'zh-CN,zh;q=0.8',
                   'User-Agent': user_agents[random.randint(0, len(user_agents)-1)]}
-        response = requests.get(scrape_url, timeout=60, headers=header, proxies=None)
-        return response.content
+        response = self.connection_pool.request('GET', scrape_url, timeout=60, headers=header)
+        return response.data
 
     def _parser_http_proxy(self, content):
         soup = BeautifulSoup(content, 'html.parser')
@@ -101,7 +102,6 @@ class ProxyService(object):
         return parser_proxy_url_set
 
     def _parser_https_proxy(self, content):
-        print len(content)
         soup = BeautifulSoup(content, 'html.parser')
         proxy_tag = soup.find_all('tr', {'class': 'Odd'})
         res = re.compile('%(%|\w)+')
@@ -124,14 +124,16 @@ class ProxyService(object):
             header = {'content-type': 'text/html',
                       'User-Agent': user_agents[random.randint(0, len(user_agents)-1)]}
             proxy = {protocol: url}
+            conection_pool = ProxyManager(url)
             try:
-                response = self.request.get(CHECK_URL[protocol], timeout=60, headers=header, proxies=proxy)
-                if response.status_code == 200:
+                response = conection_pool.request('GET', CHECK_URL[protocol], timeout=60, headers=header)
+                if response.status == 200:
                     valid_proxy_url_set.add(url)
                     print 'Valid proxy url', url
                 else:
                     print 'Invalid ', url
             except Exception as ex:
+                print ex
                 print 'Invalid ', url
 
         return valid_proxy_url_set

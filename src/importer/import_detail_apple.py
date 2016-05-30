@@ -20,7 +20,7 @@ class AppleDetailImporter(AppDetailImporter):
         try:
             soup = BeautifulSoup(content, 'html.parser')
             name = soup.find(id='title').h1.string.encode('utf-8').replace('\"', '\'')
-            description = soup.find(itemprop='description').get_text().encode('utf-8').replace('\"', '\'')
+            description = soup.find(itemprop='description').get_text().encode('utf-8').replace('\"', '\'').replace('\\', '')
             icon_url = soup.find(id='left-stack').meta['content']
             if not name or not description or not icon_url:
                 print 'Failed to parser app name, description and icon url.'

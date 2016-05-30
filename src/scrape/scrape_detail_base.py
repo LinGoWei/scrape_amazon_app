@@ -1,7 +1,9 @@
 from abc import abstractmethod
-import requests
 import zlib
 import gc
+
+from urllib3 import PoolManager
+from memory_profiler import profile
 
 from services.proxy_service import ProxyService
 from services.redis_service import RedisService
@@ -19,10 +21,12 @@ class AppDetailSpider(object):
         self.market = None
         self.proxy_service = ProxyService(error_dict)
         self.redis_service = RedisService()
-        self.request = requests.Session()
+        self.connection_pool = PoolManager(num_pools=5)
 
+    @profile
     def process(self, process_id, date_str, app_ids):
         """
+        print self.error_proxy_dict
 
         :param date_str:
         :param app_ids:
