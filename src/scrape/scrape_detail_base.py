@@ -21,7 +21,7 @@ class AppDetailSpider(object):
         self.market = None
         self.proxy_service = ProxyService(error_dict)
         self.redis_service = RedisService()
-        self.connection_pool = PoolManager(num_pools=5)
+        self.connection_pool = PoolManager(num_pools=1)
 
     @profile
     def process(self, process_id, date_str, app_ids):
@@ -51,7 +51,7 @@ class AppDetailSpider(object):
 
     def _scrape(self, app_id):
         try:
-           return self._scrape_market(app_id)
+            return self._scrape_market(app_id)
         except Exception as ex:
             logger.exception(ex)
             print 'Failed scrape', app_id
